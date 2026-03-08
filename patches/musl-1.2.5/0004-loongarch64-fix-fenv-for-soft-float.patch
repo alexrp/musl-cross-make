@@ -1,0 +1,44 @@
+From 355661066861220087e94808c32e23bc13509155 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Alex=20R=C3=B8nne=20Petersen?= <alex@alexrp.com>
+Date: Sat, 27 Sep 2025 04:24:23 +0200
+Subject: [PATCH 1/9] loongarch64: fix fenv for soft float
+
+See: https://github.com/ziglang/zig/issues/25367
+---
+ arch/loongarch64/bits/fenv.h   | 5 +++++
+ src/fenv/loongarch64/fenv-sf.c | 3 +++
+ 2 files changed, 8 insertions(+)
+ create mode 100644 src/fenv/loongarch64/fenv-sf.c
+
+diff --git a/arch/loongarch64/bits/fenv.h b/arch/loongarch64/bits/fenv.h
+index 264cafb5..6f98053a 100644
+--- a/arch/loongarch64/bits/fenv.h
++++ b/arch/loongarch64/bits/fenv.h
+@@ -1,3 +1,7 @@
++#ifdef __loongarch_soft_float
++#define FE_ALL_EXCEPT 0
++#define FE_TONEAREST  0
++#else
+ #define FE_INEXACT    0x010000
+ #define FE_UNDERFLOW  0x020000
+ #define FE_OVERFLOW   0x040000
+@@ -10,6 +14,7 @@
+ #define FE_TOWARDZERO 0x100
+ #define FE_UPWARD     0x200
+ #define FE_DOWNWARD   0x300
++#endif
+ 
+ typedef unsigned fexcept_t;
+ 
+diff --git a/src/fenv/loongarch64/fenv-sf.c b/src/fenv/loongarch64/fenv-sf.c
+new file mode 100644
+index 00000000..41154673
+--- /dev/null
++++ b/src/fenv/loongarch64/fenv-sf.c
+@@ -0,0 +1,3 @@
++#ifdef __loongarch_soft_float
++#include "../fenv.c"
++#endif
+-- 
+2.51.0
+
